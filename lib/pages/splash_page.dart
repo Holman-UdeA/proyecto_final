@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_final/pages/home_navigation_bar_page.dart';
+import 'package:proyecto_final/pages/sign_in_page.dart';
 import 'package:proyecto_final/repository/firebase_api.dart';
 
 class SplashPage extends StatefulWidget {
@@ -37,7 +38,7 @@ class _SplashPageState extends State<SplashPage> {
       if (await result) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => SplashPage()),
+          MaterialPageRoute(builder: (context) => SignInPage()),
         );
       }else{
         Navigator.pushReplacement(
