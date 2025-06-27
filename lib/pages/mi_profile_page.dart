@@ -119,7 +119,7 @@ class _MiProfilePageState extends State<MiProfilePage> {
                   const SizedBox(height: 10),
                   const Divider(),
 
-                  // SERVICIOS (solo para profesionales)
+                  // Servicios (solo para profesionales)
                   if (isProfessional) ...[
                     const SizedBox(height: 10),
                     Text(
@@ -191,7 +191,13 @@ class _MiProfilePageState extends State<MiProfilePage> {
         child: ListTile(
           leading: const Icon(Icons.fitness_center, color: Color(0xFF0F8555)),
           title: Text(service["nameService"]),
-          subtitle: Text("Precio: ${service["price"]} COP"),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Especialidad: ${service["specialism"] ?? 'N/A'}"),
+              Text("Precio: ${service["price"]} COP"),
+            ],
+          ),
         ),
       ),
     );

@@ -14,6 +14,7 @@ class _NewServicePageState extends State<NewServicePage> {
   final FirebaseApi _firebaseApi = FirebaseApi();
 
   final _nameService = TextEditingController();
+  final _specialism = TextEditingController();
   final _price = TextEditingController();
   final _duration = TextEditingController();
   final _description = TextEditingController();
@@ -37,6 +38,42 @@ class _NewServicePageState extends State<NewServicePage> {
                   border: OutlineInputBorder(),
                   labelText: "Titulo",
                   prefixIcon: const Icon(Icons.abc),
+                ),
+                keyboardType: TextInputType.text,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _specialism,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Especialidad",
+                  prefixIcon: const Icon(Icons.accessibility),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text("Información de especialidad"),
+                            content: const Text(
+                              "En este campo debes indicar la especialidad o área de experiencia del servicio que ofreces. "
+                              "Por ejemplo: Nutricionista, Fisiterapeuta, Deportologo, e.t.c.",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Entendido"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.info_outline,
+                      color: Color(0xFF0F8555),
+                    ),
+                  ),
                 ),
                 keyboardType: TextInputType.text,
               ),
@@ -97,16 +134,17 @@ class _NewServicePageState extends State<NewServicePage> {
     var service = ServiceOfProfesional(
       "",
       FirebaseAuth.instance.currentUser!.uid,
-      _nameService.text,
+      _nameService.text.toLowerCase(),
+      _specialism.text.toLowerCase(),
       _description.text,
       _price.text,
       _duration.text,
     );
 
     var result = await _firebaseApi.createServiceInDB(service);
-    if(result == 'network-request-failed'){
+    if (result == 'network-request-failed') {
       showMsg("Revise su conexión a Internet");
-    }else {
+    } else {
       showMsg("Servicio guardado");
       Navigator.pop(context);
     }

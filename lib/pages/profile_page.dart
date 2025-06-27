@@ -28,7 +28,6 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: const Text(
           "Perfil",
-          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
