@@ -83,10 +83,10 @@ class _SearchPageState extends State<SearchPage> {
       final filtered =
       snapshot.docs.where((doc) {
         final name = (doc["nameService"] ?? "").toString().toLowerCase();
-        //final speciality =
-        //(doc["specialty"] ?? "").toString().toLowerCase();
+        final speciality = (doc["specialism"] ?? "").toString().toLowerCase();
         //return name.contains(query) || speciality.contains(query);
-        return name.contains(query);
+        //return name == query || speciality == query;
+        return name.startsWith(query) || speciality.startsWith(query);
       }).toList();
 
       setState(() {
