@@ -10,6 +10,6 @@ class MiProfilePage extends StatefulWidget {
 class _MiProfilePageState extends State<MiProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold();
   }
 }
