@@ -31,6 +31,7 @@ class _SearchPageState extends State<SearchPage> {
                     controller: _itemSearch,
                     decoration: InputDecoration(
                       hintText: "Ingrese servicio o especialidad a buscar",
+                      hintStyle: TextStyle(fontSize: 15, color: Colors.black54),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -121,6 +122,7 @@ class _SearchPageState extends State<SearchPage> {
 
           if (photoUrl != null && photoUrl != "") {
             leading = CircleAvatar(
+              radius: 40,
               backgroundImage: NetworkImage(photoUrl),
             );
 
@@ -136,27 +138,48 @@ class _SearchPageState extends State<SearchPage> {
           nameProfesional = "N/A";
         }
 
-        return Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          elevation: 3,
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          child: ListTile(
-            leading: leading,
-            title: Text(nameProfesional),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("${service["nameService"]}" ),
-                Text("${service["specialism"] ?? 'N/A'}"),
-                Text("Precio: ${service["price"]}"),
-              ],
+        return InkWell(
+          onTap:(){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => DetailServicePage(service)),
+            );
+          },
+          child: Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 3,
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: (leading as CircleAvatar).backgroundImage,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nameProfesional,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text("${service["nameService"]}"),
+                        Text("${service["specialism"] ?? 'N/A'}"),
+                        Text("Precio: ${service["price"]} COP"),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => DetailServicePage(service)),
-              );
-            },
           ),
         );
       },

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:proyecto_final/pages/messages_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DetailServicePage extends StatefulWidget {
@@ -24,6 +25,22 @@ class _DetailServicePageState extends State<DetailServicePage> {
       appBar: AppBar(
         title: const Text("Detalle del Servicio"),
         centerTitle: true,
+        actions: [
+          if (FirebaseAuth.instance.currentUser?.uid != service["uidProfesional"])
+            IconButton(
+              icon: const Icon(Icons.chat),
+              tooltip: 'Chatear con el profesional',
+              onPressed: () async {
+                final chatId = await _createOrGetChat(service["uidProfesional"]);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MessagesPage(chatId: chatId),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
       body: FutureBuilder<DocumentSnapshot>(
         future: _getProfessionalData(),
@@ -106,19 +123,20 @@ class _DetailServicePageState extends State<DetailServicePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                if(service["uidProfesional"]!=FirebaseAuth.instance.currentUser?.uid)
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F8555),
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size.fromHeight(50),
+                if (service["uidProfesional"] !=
+                    FirebaseAuth.instance.currentUser?.uid)
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0F8555),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size.fromHeight(50),
+                    ),
+                    onPressed: () {
+                      _launchEmail(email);
+                    },
+                    icon: const Icon(Icons.mail),
+                    label: const Text("Contactar profesional"),
                   ),
-                  onPressed: () {
-                    _launchEmail(email);
-                  },
-                  icon: const Icon(Icons.mail),
-                  label: const Text("Contactar profesional"),
-                ),
               ],
             ),
           );
@@ -186,5 +204,36 @@ class _DetailServicePageState extends State<DetailServicePage> {
         );
       }
     }
+  }
+
+  Future<String> _createOrGetChat(String uidProfesional) async {
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final chatRef = FirebaseFirestore.instance.collection("chats");
+
+    final query = await chatRef.where("users", arrayContains: currentUserId).get();
+
+    for (var doc in query.docs) {
+      final users = List<String>.from(doc["users"]);
+      if (users.contains(uidProfesional)) {
+        // Ya existe el chat
+        return doc.id;
+      }
+    }
+
+    // No existe: crear uno nuevo
+    final newDoc = chatRef.doc();
+
+    final newChatData = {
+      "idChat": newDoc.id,
+      "users": [currentUserId, uidProfesional],
+      "lastMessage": "",
+      "lastSenderId": "",
+      "lastTimestamp": FieldValue.serverTimestamp(),
+      "createdAt": FieldValue.serverTimestamp(),
+    };
+
+    await newDoc.set(newChatData);
+
+    return newDoc.id;
   }
 }

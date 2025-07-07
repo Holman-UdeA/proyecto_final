@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:proyecto_final/models/service_of_profesional.dart';
 import 'package:proyecto_final/repository/firebase_api.dart';
 
@@ -86,6 +88,7 @@ class _NewServicePageState extends State<NewServicePage> {
                   prefixIcon: const Icon(Icons.price_change),
                 ),
                 keyboardType: TextInputType.number,
+                inputFormatters: [priceFormatter],
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -129,6 +132,20 @@ class _NewServicePageState extends State<NewServicePage> {
       ),
     );
   }
+  final priceFormatter = TextInputFormatter.withFunction(
+        (oldValue, newValue) {
+      final text = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+      if (text.isEmpty) return newValue.copyWith(text: '');
+
+      final number = int.parse(text);
+      final formatted = NumberFormat.decimalPattern('es_CO').format(number);
+
+      return TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    },
+  );
 
   Future<void> _saveService() async {
     var service = ServiceOfProfesional(
