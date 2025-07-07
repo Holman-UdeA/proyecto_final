@@ -225,7 +225,6 @@ class _MessagesPageState extends State<MessagesPage> {
       "lastSenderId": _currentUserId,
       "lastTimestamp": FieldValue.serverTimestamp(),
     });
-
     _messageController.clear();
   }
 }
