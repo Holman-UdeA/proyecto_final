@@ -31,12 +31,12 @@ class _MessagesPageState extends State<MessagesPage> {
             FirebaseFirestore.instance
                 .collection("chats")
                 .where("users", arrayContains: _currentUserId)
-                .orderBy("lastTimestamp", descending: true)
                 .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
+
           final chats = snapshot.data!.docs;
 
           if (chats.isEmpty) {
@@ -64,7 +64,7 @@ class _MessagesPageState extends State<MessagesPage> {
                         .doc(otherUserId)
                         .get(),
                 builder: (context, userSnapshot) {
-                  String name = "Desconocido";
+                  String name = "No data";
                   String? photoUrl;
 
                   if (userSnapshot.hasData && userSnapshot.data != null) {
@@ -118,7 +118,7 @@ class _MessagesPageState extends State<MessagesPage> {
     );
   }
 
-  Widget _buildChatDetail() {
+  /*Widget _buildChatDetail() {
     return Scaffold(
       appBar: AppBar(title: Text("Chat"), centerTitle: true),
       body: Column(
@@ -154,7 +154,7 @@ class _MessagesPageState extends State<MessagesPage> {
                         margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: isMe ? Colors.green[100] : Colors.grey[300],
+                          color: isMe ? Color(0xFF0F8555).withAlpha(100) : Colors.grey[300],
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(text),
@@ -179,7 +179,7 @@ class _MessagesPageState extends State<MessagesPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send),
+                  icon: const Icon(Icons.send, color: Color(0xFF0F8555),),
                   onPressed: _sendMessage,
                 ),
               ],
@@ -188,7 +188,130 @@ class _MessagesPageState extends State<MessagesPage> {
         ],
       ),
     );
+  }*/
+
+  Widget _buildChatDetail() {
+    return FutureBuilder<DocumentSnapshot>(
+      future: _getOtherUserData(),
+      builder: (context, snapshot) {
+        String title = "Chat";
+        String? photoUrl;
+
+        if (snapshot.hasData && snapshot.data != null) {
+          final userData = snapshot.data!.data() as Map<String, dynamic>?;
+          title = userData?["name"] ?? "Chat";
+          photoUrl = userData?["ulrPicture"];
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Row(
+              children: [
+                CircleAvatar(
+                  radius: 17,
+                  backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
+                      ? NetworkImage(photoUrl)
+                      : const AssetImage("assets/images/default_profile.jpg") as ImageProvider,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    overflow: TextOverflow.ellipsis,
+                    //style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              ],
+            ),
+            titleSpacing: -5,
+          ),
+          body: Column(
+            children: [
+              const Divider(height: 0.5, thickness: 1, color: Colors.grey),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("chats")
+                      .doc(chatId)
+                      .collection("messages")
+                      .orderBy("timestamp", descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final messages = snapshot.data!.docs;
+
+                    return ListView.builder(
+                      reverse: true,
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final data = messages[index].data() as Map<String, dynamic>;
+                        final text = data["text"];
+                        final senderId = data["senderId"];
+                        final isMe = senderId == _currentUserId;
+
+                        return Align(
+                          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isMe ? Color(0xFF0F8555).withAlpha(100) : Colors.grey[300],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(text),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: const InputDecoration(
+                          hintText: "Escribe un mensaje...",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send, color: Color(0xFF0F8555),size: 30,),
+                      onPressed: _sendMessage,
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
+
+  Future<DocumentSnapshot> _getOtherUserData() async {
+    final chatDoc = await FirebaseFirestore.instance
+        .collection("chats")
+        .doc(chatId)
+        .get();
+
+    final chatData = chatDoc.data() as Map<String, dynamic>;
+    final users = List<String>.from(chatData["users"]);
+    final otherUserId = users.firstWhere((uid) => uid != _currentUserId);
+
+    return FirebaseFirestore.instance
+        .collection("users")
+        .doc(otherUserId)
+        .get();
+  }
+
 
   String _formatTimestamp(Timestamp ts) {
     final date = ts.toDate();
@@ -202,6 +325,9 @@ class _MessagesPageState extends State<MessagesPage> {
 
   void _sendMessage() async {
     final text = _messageController.text.trim();
+
+    _messageController.clear();
+
     if (text.isEmpty) return;
 
     final docRef =
@@ -225,6 +351,7 @@ class _MessagesPageState extends State<MessagesPage> {
       "lastSenderId": _currentUserId,
       "lastTimestamp": FieldValue.serverTimestamp(),
     });
-    _messageController.clear();
+
+
   }
 }
