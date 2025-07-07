@@ -2,6 +2,7 @@ class ServiceOfProfesional {
   var _idService;
   var _uidProfesional;
   var _nameService;
+  var _specialism;
   var _description;
   var _price;
   var _duration;
@@ -10,6 +11,7 @@ class ServiceOfProfesional {
     this._idService,
     this._uidProfesional,
     this._nameService,
+    this._specialism,
     this._description,
     this._price,
     this._duration,
@@ -41,6 +43,12 @@ class ServiceOfProfesional {
     _nameService = value;
   }
 
+  get specialism => _specialism;
+
+  set specialism(value) {
+    _specialism = value;
+  }
+
   get uidProfesional => _uidProfesional;
 
   set uidProfesional(value) {
@@ -55,6 +63,7 @@ class ServiceOfProfesional {
     "idService": _idService,
     "uidProfesional": _uidProfesional,
     "nameService": _nameService,
+    "specialism": _specialism,
     "description": _description,
     "price": _price,
     "duration": _duration,
@@ -64,6 +73,7 @@ class ServiceOfProfesional {
     : _idService = json["idService"],
       _uidProfesional = json["uidProfesional"],
       _nameService = json["nameService"],
+      _specialism = json["specialism"],
       _description = json["description"],
       _price = json["price"],
       _duration = json["duration"];

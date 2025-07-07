@@ -24,10 +24,10 @@ class _MiProfilePageState extends State<MiProfilePage> {
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>?>>(
       stream:
-      FirebaseFirestore.instance
-          .collection("users")
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .snapshots(),
+          FirebaseFirestore.instance
+              .collection("users")
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data == null) {
           return const Scaffold(
@@ -41,14 +41,14 @@ class _MiProfilePageState extends State<MiProfilePage> {
         return Scaffold(
           appBar: AppBar(title: const Text("Mi perfil"), centerTitle: true),
           floatingActionButton:
-          isProfessional
-              ? FloatingActionButton(
-            onPressed: () {
-              _addButtonClicked();
-            },
-            child: const Icon(Icons.add),
-          )
-              : null,
+              isProfessional
+                  ? FloatingActionButton(
+                    onPressed: () {
+                      _addButtonClicked();
+                    },
+                    child: const Icon(Icons.add),
+                  )
+                  : null,
           body: Padding(
             padding: const EdgeInsets.all(16),
             child: SingleChildScrollView(
@@ -62,13 +62,13 @@ class _MiProfilePageState extends State<MiProfilePage> {
                       CircleAvatar(
                         radius: 50,
                         backgroundImage:
-                        user?["ulrPicture"] != null &&
-                            user!["ulrPicture"] != ""
-                            ? NetworkImage(user["ulrPicture"])
-                            : const AssetImage(
-                          "assets/images/default_profile.jpg",
-                        )
-                        as ImageProvider,
+                            user?["ulrPicture"] != null &&
+                                    user!["ulrPicture"] != ""
+                                ? NetworkImage(user["ulrPicture"])
+                                : const AssetImage(
+                                      "assets/images/default_profile.jpg",
+                                    )
+                                    as ImageProvider,
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -119,7 +119,7 @@ class _MiProfilePageState extends State<MiProfilePage> {
                   const SizedBox(height: 10),
                   const Divider(),
 
-                  // SERVICIOS (solo para profesionales)
+                  // Servicios (solo para profesionales)
                   if (isProfessional) ...[
                     const SizedBox(height: 10),
                     Text(
@@ -129,9 +129,11 @@ class _MiProfilePageState extends State<MiProfilePage> {
                     const SizedBox(height: 10),
                     StreamBuilder<QuerySnapshot>(
                       stream:
-                      FirebaseFirestore.instance
-                          .collection("servicesOfProfessionals")
-                          .snapshots(),
+                          FirebaseFirestore.instance
+                              .collection("users")
+                              .doc(FirebaseAuth.instance.currentUser!.uid)
+                              .collection("myServices")
+                              .snapshots(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) return Text("Loading...");
                         return ListView.builder(
@@ -139,7 +141,8 @@ class _MiProfilePageState extends State<MiProfilePage> {
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: snapshot.data?.docs.length,
                           itemBuilder: (context, index) {
-                            QueryDocumentSnapshot service = snapshot.data!.docs[index];
+                            QueryDocumentSnapshot service =
+                                snapshot.data!.docs[index];
                             return buildCard(service);
                           },
                         );
@@ -191,7 +194,13 @@ class _MiProfilePageState extends State<MiProfilePage> {
         child: ListTile(
           leading: const Icon(Icons.fitness_center, color: Color(0xFF0F8555)),
           title: Text(service["nameService"]),
-          subtitle: Text("Precio: ${service["price"]} COP"),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Especialidad: ${service["specialism"] ?? 'N/A'}"),
+              Text("Precio: ${service["price"]} COP"),
+            ],
+          ),
         ),
       ),
     );
@@ -211,9 +220,9 @@ class _MiProfilePageState extends State<MiProfilePage> {
         TextButton(
           onPressed:
               () => {
-            _firebaseApi.deleteService(service),
-            Navigator.pop(context, "OK"),
-          },
+                _firebaseApi.deleteService(service),
+                Navigator.pop(context, "OK"),
+              },
           child: const Text("Aceptar"),
         ),
       ],
