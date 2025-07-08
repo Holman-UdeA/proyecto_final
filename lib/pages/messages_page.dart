@@ -344,14 +344,14 @@ class _MessagesPageState extends State<MessagesPage> {
       "timestamp": FieldValue.serverTimestamp(),
     };
 
+    //Guardamos en firestore
     await docRef.set(message);
 
+    //Actualizamos la colección chat
     await FirebaseFirestore.instance.collection("chats").doc(chatId).update({
       "lastMessage": text,
       "lastSenderId": _currentUserId,
       "lastTimestamp": FieldValue.serverTimestamp(),
     });
-
-
   }
 }
