@@ -232,6 +232,7 @@ class _DetailServicePageState extends State<DetailServicePage> {
       "createdAt": FieldValue.serverTimestamp(),
     };
 
+    //Guardamos el nuevo documento con los datos definidos.
     await newDoc.set(newChatData);
 
     return newDoc.id;
