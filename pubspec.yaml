@@ -47,6 +47,9 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: 1.1.0
   path_provider: ^2.1.2
+  firebase_performance: ^0.10.1+9
+  firebase_crashlytics: ^4.3.9
+  firebase_analytics: ^11.5.2
 
 dev_dependencies:
   flutter_test:
